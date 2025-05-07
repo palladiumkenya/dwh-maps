@@ -1,0 +1,10 @@
+version: '3.4'
+services:
+  dwhlive:
+      image: kenyahmis/dwhmaps:${TAG}
+      container_name: dwhmaps
+      restart: always
+      environment:
+        - REACT_APP_API_URL=${APP_API_URL}
+      ports:
+        - "${APP_PORT}:${APP_HOST_PORT}"
