@@ -3,7 +3,7 @@ import { useMap } from "react-leaflet";
 import kenyaCounties from "@/data/kenya-counties-simplified.json";
 
 interface ZoomToCountyProps {
-    countyName: string;
+    countyName: string | undefined;
 }
 
 export default function ZoomToCounty({ countyName }: ZoomToCountyProps) {
@@ -16,17 +16,22 @@ export default function ZoomToCounty({ countyName }: ZoomToCountyProps) {
             (f: any) => f.properties.shapeName.toLowerCase() === countyName.toLowerCase()
         );
 
-        if (countyFeature) {
-            const latlngs = [];
+        if (!countyFeature) return;
 
-            if (countyFeature.geometry.type === "Polygon") {
-                latlngs.push(...countyFeature.geometry.coordinates[0]);
-            } else if (countyFeature.geometry.type === "MultiPolygon") {
-                latlngs.push(...countyFeature.geometry.coordinates[0][0]);
-            }
+        let coordinates: [number, number][] = [];
 
-            const bounds = latlngs.map(([lng, lat]) => [lat, lng]);
-            map.fitBounds(bounds);
+        if (countyFeature.geometry.type === "Polygon") {
+            coordinates = countyFeature.geometry.coordinates[0].map(
+                ([lng, lat]: [number, number]) => [lat, lng]
+            );
+        } else if (countyFeature.geometry.type === "MultiPolygon") {
+            coordinates = countyFeature.geometry.coordinates[0][0].map(
+                ([lng, lat]: [number, number]) => [lat, lng]
+            );
+        }
+
+        if (coordinates.length > 0) {
+            map.fitBounds(coordinates); // ✅ Valid LatLngBoundsExpression
         }
     }, [countyName, map]);
 

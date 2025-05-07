@@ -118,3 +118,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+.leaflet-control.legend {
+  background: white;
+  padding: 10px;
+  border-radius: 6px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  font-size: 12px;
+  line-height: 18px;
+  color: #333;
+}
+

@@ -62,7 +62,7 @@ const FilterPanel = ({ filters, setFilters }: Props) => {
     }, [regionsData]);
 
     const subCountiesForSelectedCounty = React.useMemo(() => {
-        return regionsData?.filter((r) => r.county.toLowerCase() === filters.county.toLowerCase()) ?? [];
+        return regionsData?.filter((r) => r.county.toLowerCase() === filters?.county?.toLowerCase()) ?? [];
     }, [regionsData, filters.county]);
 
     const filtersList = [
