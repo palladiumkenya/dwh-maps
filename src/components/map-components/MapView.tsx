@@ -72,7 +72,7 @@ export function MapView({ filters }: MapViewProps) {
                 {filters.choroplethEnabled && !isLoading && (
                     <>
                         <GeoJSON data={kenyaCounties as any} style={style}/>
-                        <ZoomToCounty countyName={filters.county}/>
+                        <ZoomToCounty countyNames={filters.counties}/>
                         <MapLegend />
                     </>
                 )}

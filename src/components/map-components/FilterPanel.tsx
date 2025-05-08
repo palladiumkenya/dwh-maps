@@ -88,16 +88,6 @@ const FilterPanel = ({ filters, setFilters }: Props) => {
 
     return (
         <div className="p-4 w-80 bg-white border-r space-y-4">
-            {/* Assignment Period */}
-            <Select>
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Assignment Period" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="7_days">Past 7 Days</SelectItem>
-                    <SelectItem value="30_days">Past 30 Days</SelectItem>
-                </SelectContent>
-            </Select>
 
             {/* Indicator */}
             <Select value={filters.indicator} onValueChange={(v) => update("indicator", v)}>
@@ -119,7 +109,14 @@ const FilterPanel = ({ filters, setFilters }: Props) => {
 
             <Popover>
                 <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-left">
+                    <Button
+                        variant="outline"
+                        className={cn(
+                            "w-full justify-start text-left",
+                            filters.counties && filters.counties.length > 0 && "bg-green-600 text-white hover:bg-green-700",
+                            filters.counties && filters.counties.length === 0 && "text-muted-foreground"
+                        )}
+                    >
                         {(filters.counties ?? []).length > 0
                             ? (filters.counties ?? []).join(", ")
                             : "Select County"}
