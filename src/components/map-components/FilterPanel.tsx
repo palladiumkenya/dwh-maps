@@ -76,14 +76,22 @@ const FilterPanel = ({ filters, setFilters }: Props) => {
         );
     }, [regionsData, filters.counties]);
 
-    const filtersList = [
-        // "Sub County",
-        "Facility",
-        // "Sex",
-        // "Age Category",
-        // "Agency",
-        "Partner",
-    ];
+    const uniqueAgencies = React.useMemo(() => {
+        const seen = new Set<string>();
+        return agenciesData?.filter((r) => {
+            if (seen.has(r.agency)) return false;
+            seen.add(r.agency);
+            return true;
+        }) ?? [];
+    }, [agenciesData]);
+
+    const partnersForSelectedAgency = React.useMemo(() => {
+        return agenciesData?.filter((r) => r.agency.toLowerCase() === filters?.agency?.toLowerCase()) ?? [];
+    }, [agenciesData, filters.agency]);
+
+    const partnersForSelectedSubCounty = React.useMemo(() => {
+        return regionsData?.filter((r) => r.subCounty.toLowerCase() === filters?.subCounty?.toLowerCase()) ?? [];
+    }, [regionsData, filters.subCounty]);
 
 
     return (
@@ -168,6 +176,19 @@ const FilterPanel = ({ filters, setFilters }: Props) => {
                 </SelectContent>
             </Select>
 
+            <Select value={filters.facilityName} onValueChange={(v) => update("facilityName", v)}>
+                <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Facility Name" />
+                </SelectTrigger>
+                <SelectContent>
+                    {partnersForSelectedSubCounty.map((subCounty, index) => (
+                        <SelectItem key={`${subCounty.facilityName}-${index}`} value={subCounty.facilityName}>
+                            {subCounty.facilityName}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+
             <Select value={filters.sex} onValueChange={(v) => update("sex", v)}>
                 <SelectTrigger className="w-full">
                     <SelectValue placeholder="Sex" />
@@ -210,7 +231,7 @@ const FilterPanel = ({ filters, setFilters }: Props) => {
                     {isLoadingAgencies ? (
                         <SelectItem value="loading" disabled>Loading...</SelectItem>
                     ) : (
-                        agenciesData?.map((agency: Agency) => (
+                        uniqueAgencies?.map((agency: Agency) => (
                             <SelectItem key={agency.agency} value={agency.agency}>
                                 {agency.agency}
                             </SelectItem>
@@ -219,17 +240,18 @@ const FilterPanel = ({ filters, setFilters }: Props) => {
                 </SelectContent>
             </Select>
 
-            {/* Other filters */}
-            {filtersList.map((label) => (
-                <Select key={label}>
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder={label} />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="sample">Sample Option</SelectItem>
-                    </SelectContent>
-                </Select>
-            ))}
+            <Select value={filters.partner} onValueChange={(v) => update("partner", v)}>
+                <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Partner" />
+                </SelectTrigger>
+                <SelectContent>
+                    {partnersForSelectedAgency.map((agency, index) => (
+                        <SelectItem key={`${agency.partnerName}-${index}`} value={agency.partnerName}>
+                            {agency.partnerName}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
 
             {/* Filter and Reset buttons */}
             <Button className="w-full">Filter</Button>

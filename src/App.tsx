@@ -12,6 +12,7 @@ function App() {
         ageGroup: "",
         agency: "",
         partner: "",
+        facilityName: "",
         choroplethEnabled: true,
         bubbleMapEnabled: false,
     });

@@ -6,6 +6,7 @@ export interface MapFilters {
     ageGroup?: string;
     agency?: string;
     partner?: string;
+    facilityName?: string;
     choroplethEnabled?: boolean;
     bubbleMapEnabled?: boolean;
 }
