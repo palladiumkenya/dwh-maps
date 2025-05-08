@@ -32,9 +32,9 @@ export function MapView({ filters }: MapViewProps) {
     };
 
     const getColorByRate = (rate: number = 0) => {
-        if (rate >= 30) return "#dc2626";
-        if (rate >= 15) return "#facc15";
-        return "#16a34a";
+        if (rate >= 5) return "#dc2626";       // Red: Critical gap
+        if (rate >= 3) return "#facc15";       // Yellow: Moderate concern
+        return "#16a34a";                      // Green: Acceptable level
     };
 
     const style = (feature: any) => {

@@ -1,6 +1,6 @@
 export interface MapFilters {
     indicator?: string;
-    county?: string;
+    counties?: string[];
     subCounty?: string;
     sex?: string;
     ageGroup?: string;

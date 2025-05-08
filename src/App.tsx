@@ -6,8 +6,8 @@ import type {MapFilters} from "@/types/MapFilters.ts";
 
 function App() {
     const [filters, setFilters] = useState<MapFilters>({
-        indicator: "",
-        county: "",
+        indicator: "DELAYED VL TESTING",
+        counties: [],
         sex: "",
         ageGroup: "",
         agency: "",
