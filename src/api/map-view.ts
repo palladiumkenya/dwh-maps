@@ -1,7 +1,7 @@
 interface MapQueryParams {
     indicator?: string;
-    counties?: string[];  // 👈 updated
-    subCounty?: string;
+    counties?: string[];
+    subCounty?: string[];
     sex?: string;
     ageGroup?: string;
     agency?: string;
@@ -12,13 +12,19 @@ export async function getMapData(params: MapQueryParams) {
     const query = new URLSearchParams();
 
     Object.entries(params).forEach(([key, value]) => {
-        if (!value) return;
+        if (!value || key === "choroplethEnabled") return;
 
-        if (key === "counties" && Array.isArray(value) && value.length > 0) {
+        if (key === "counties" && Array.isArray(value)) {
+            console.log(`here`);
             value.forEach((county) => {
                 query.append("County", county); // capital 'C' as per your example
             });
-        } else {
+        } else if(key === "subCounty" && Array.isArray(value)) {
+            value.forEach((subCounty) => {
+                query.append("SubCounty", subCounty);
+            });
+        }
+        else {
             query.append(key, value as string);
         }
     });

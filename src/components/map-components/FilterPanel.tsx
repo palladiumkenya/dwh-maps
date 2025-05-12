@@ -78,6 +78,13 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
         );
     }, [regionsData, filters.counties]);
 
+    const partnersForSelectedSubCounty = React.useMemo(() => {
+        if (!regionsData || !filters.subCounty || filters.subCounty.length === 0) return [];
+        return regionsData?.filter((r) =>
+            (filters.subCounty ?? []).includes(r.subCounty)
+        );
+    }, [regionsData, filters.subCounty]);
+
     const uniqueAgencies = React.useMemo(() => {
         const seen = new Set<string>();
         return agenciesData?.filter((r) => {
@@ -90,10 +97,6 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
     const partnersForSelectedAgency = React.useMemo(() => {
         return agenciesData?.filter((r) => r.agency.toLowerCase() === filters?.agency?.toLowerCase()) ?? [];
     }, [agenciesData, filters.agency]);
-
-    const partnersForSelectedSubCounty = React.useMemo(() => {
-        return regionsData?.filter((r) => r.subCounty.toLowerCase() === filters?.subCounty?.toLowerCase()) ?? [];
-    }, [regionsData, filters.subCounty]);
 
 
     return (
@@ -165,18 +168,53 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
                 </PopoverContent>
             </Popover>
 
-            <Select value={filters.subCounty} onValueChange={(v) => update("subCounty", v)}>
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Sub County" />
-                </SelectTrigger>
-                <SelectContent>
-                    {subCountiesForSelectedCounty.map((region, index) => (
-                        <SelectItem key={`${region.subCounty}-${index}`} value={region.subCounty}>
-                            {region.subCounty}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        className={cn(
+                            "w-full justify-start text-left",
+                            filters.subCounty && filters.subCounty.length > 0 && "bg-green-600 text-white hover:bg-green-700",
+                            filters.subCounty?.length === 0 && "text-muted-foreground"
+                        )}
+                    >
+                        {(filters.subCounty ?? []).length > 0
+                            ? filters?.subCounty?.join(", ")
+                            : "Select Sub County"}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0">
+                    <Command>
+                        <CommandGroup>
+                            {subCountiesForSelectedCounty.map((region, index) => {
+                                const subCountyName = region.subCounty;
+                                const selectedSubCounties = filters.subCounty ?? [];
+                                const isSelected = selectedSubCounties.includes(subCountyName);
+
+                                return (
+                                    <CommandItem
+                                        key={`${subCountyName}-${index}`}
+                                        onSelect={() => {
+                                            const newValue = isSelected
+                                                ? selectedSubCounties.filter((s) => s !== subCountyName)
+                                                : [...selectedSubCounties, subCountyName];
+                                            update("subCounty", newValue);
+                                        }}
+                                    >
+                                        <Check
+                                            className={cn(
+                                                "mr-2 h-4 w-4",
+                                                isSelected ? "opacity-100" : "opacity-0"
+                                            )}
+                                        />
+                                        {subCountyName}
+                                    </CommandItem>
+                                );
+                            })}
+                        </CommandGroup>
+                    </Command>
+                </PopoverContent>
+            </Popover>
 
             <Select value={filters.facilityName} onValueChange={(v) => update("facilityName", v)}>
                 <SelectTrigger className="w-full">

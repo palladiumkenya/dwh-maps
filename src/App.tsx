@@ -10,6 +10,7 @@ function App() {
     const [filters, setFilters] = useState<MapFilters>({
         indicator: "DELAYED VL TESTING",
         counties: [],
+        subCounty: [],
         sex: "",
         ageGroup: "",
         agency: "",
@@ -20,7 +21,7 @@ function App() {
     });
 
     const resetMapView = () => {
-        mapRef.current?.setView([0.0236, 37.9062], 7); // ← Kenya center + default zoom
+        mapRef.current?.setView([0.0236, 37.9062], 7);
     };
 
     return (
