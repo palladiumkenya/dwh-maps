@@ -1,11 +1,21 @@
-import {MapContainer, TileLayer, GeoJSON, CircleMarker, Popup} from "react-leaflet";
+import {
+    MapContainer,
+    TileLayer,
+    GeoJSON,
+    CircleMarker,
+    Popup, useMap
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import type {Feature, FeatureCollection, GeoJsonProperties, Geometry} from 'geojson';
 import kenyaCounties from '@/data/kenya-counties-simplified.json';
 import {useQuery} from "@tanstack/react-query";
 import {getMapData} from "@/api/map-view.ts";
 import type {MapFilters} from "@/types/MapFilters.ts";
+import {useEffect, useRef} from "react";
+import L from "leaflet";
 import ZoomToCounty from "@/components/map-components/ZoomToCounty.tsx";
 import MapLegend from "@/components/map-components/MapLegend.tsx";
+import * as React from "react";
 
 type CountyPoint = { county: string; count: number; rate: number };
 type FacilityPoint = {
@@ -18,9 +28,12 @@ type FacilityPoint = {
 
 interface MapViewProps {
     filters: MapFilters;
+    mapRef: React.RefObject<L.Map | null>;
 }
 
-export function MapView({ filters }: MapViewProps) {
+export function MapView({ filters, mapRef }: MapViewProps) {
+    const geoJsonRef = useRef<L.GeoJSON>(null);
+
     const { data, isLoading } = useQuery({
         queryKey: ["map-data", filters],
         queryFn: () => getMapData(filters),
@@ -37,8 +50,8 @@ export function MapView({ filters }: MapViewProps) {
         return "#16a34a";                      // Green: Acceptable level
     };
 
-    const style = (feature: any) => {
-        const rate = getRateByCounty(feature.properties.shapeName);
+    const style = (feature?: Feature<Geometry, GeoJsonProperties>) => {
+        const rate = getRateByCounty(feature?.properties?.shapeName);
         if (rate === undefined) {
             return {
                 fillOpacity: 0,
@@ -56,9 +69,44 @@ export function MapView({ filters }: MapViewProps) {
         };
     };
 
+    const highlightFeature = (e: L.LeafletMouseEvent) => {
+        const layer = e.target;
+        layer.setStyle({
+            weight: 3,
+            color: "#666",
+            dashArray: "",
+            fillOpacity: 0.7,
+        });
+        if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+            layer.bringToFront();
+        }
+    };
+
+    const resetHighlight = (e: L.LeafletMouseEvent) => {
+        geoJsonRef.current?.resetStyle(e.target);
+    };
+
+    const onEachFeature = (_feature: Feature<Geometry, GeoJsonProperties>, layer: L.Layer) => {
+        layer.on({
+            mouseover: highlightFeature,
+            mouseout: resetHighlight,
+        });
+    };
+
+    const SetMapRef = ({ mapRef }: { mapRef: React.RefObject<L.Map | null> }) => {
+        const map = useMap();
+
+        useEffect(() => {
+            mapRef.current = map;
+        }, [map, mapRef]);
+
+        return null;
+    };
+
     return (
         <div className="h-full w-full">
             <MapContainer
+                ref={mapRef}
                 center={[0.0236, 37.9062]}
                 zoom={7}
                 scrollWheelZoom={true}
@@ -71,7 +119,13 @@ export function MapView({ filters }: MapViewProps) {
 
                 {filters.choroplethEnabled && !isLoading && (
                     <>
-                        <GeoJSON data={kenyaCounties as any} style={style}/>
+                        <GeoJSON
+                            data={kenyaCounties as FeatureCollection<Geometry, GeoJsonProperties>}
+                            style={style}
+                            onEachFeature={onEachFeature}
+                            ref={geoJsonRef}
+                        />
+                        <SetMapRef mapRef={mapRef} />
                         <ZoomToCounty countyNames={filters.counties}/>
                         <MapLegend />
                     </>

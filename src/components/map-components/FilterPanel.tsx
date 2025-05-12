@@ -25,13 +25,15 @@ import type {AgeGroup} from "@/types/age-group.ts";
 import {Switch} from "@/components/ui/switch.tsx";
 import type {MapFilters} from "@/types/MapFilters.ts";
 import * as React from "react";
+import {defaultMapFilters} from "@/constants/defaultFilters.ts";
 
 interface Props {
     filters: MapFilters;
     setFilters: React.Dispatch<React.SetStateAction<MapFilters>>;
+    resetMapView: () => void;
 }
 
-const FilterPanel = ({ filters, setFilters }: Props) => {
+const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
     const update = (key: keyof MapFilters, value: string | boolean | string []) =>
         setFilters((prev) => ({ ...prev, [key]: value }));
 
@@ -255,7 +257,16 @@ const FilterPanel = ({ filters, setFilters }: Props) => {
 
             {/* Filter and Reset buttons */}
             <Button className="w-full">Filter</Button>
-            <Button variant="outline" className="w-full">Reset Filter</Button>
+            <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                    setFilters(defaultMapFilters);
+                    resetMapView();
+                }}
+            >
+                Reset Filter
+            </Button>
 
             <div className="pt-4 space-y-3">
                 <div className="flex items-center">
