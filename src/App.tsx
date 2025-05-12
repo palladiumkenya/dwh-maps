@@ -11,7 +11,7 @@ function App() {
         indicator: "DELAYED VL TESTING",
         counties: [],
         subCounty: [],
-        sex: "",
+        sex: [],
         ageGroup: "",
         agency: "",
         partner: "",

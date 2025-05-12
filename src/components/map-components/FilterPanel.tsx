@@ -229,22 +229,57 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
                 </SelectContent>
             </Select>
 
-            <Select value={filters.sex} onValueChange={(v) => update("sex", v)}>
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Sex" />
-                </SelectTrigger>
-                <SelectContent>
-                    {isLoadingSex ? (
-                        <SelectItem value="loading" disabled>Loading...</SelectItem>
-                    ) : (
-                        sexData?.map((s) => (
-                            <SelectItem key={s.sex} value={s.sex}>
-                                {s.sex}
-                            </SelectItem>
-                        ))
-                    )}
-                </SelectContent>
-            </Select>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        className={cn(
+                            "w-full justify-start text-left",
+                            filters.sex && filters.sex.length > 0 && "bg-green-600 text-white hover:bg-green-700",
+                            filters.sex?.length === 0 && "text-muted-foreground"
+                        )}
+                    >
+                        {(filters.sex ?? []).length > 0
+                            ? filters?.sex?.join(", ")
+                            : "Select Sex"}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0">
+                    <Command>
+                        <CommandGroup>
+                            {isLoadingSex ? (
+                                <CommandItem disabled>Loading...</CommandItem>
+                            ) : (
+                                sexData?.map((s, index) => {
+                                    const label = s.sex;
+                                    const selectedValues = filters.sex ?? [];
+                                    const isSelected = selectedValues.includes(label);
+
+                                    return (
+                                        <CommandItem
+                                            key={`${label}-${index}`}
+                                            onSelect={() => {
+                                                const newValue = isSelected
+                                                    ? selectedValues.filter((item) => item !== label)
+                                                    : [...selectedValues, label];
+                                                update("sex", newValue);
+                                            }}
+                                        >
+                                            <Check
+                                                className={cn(
+                                                    "mr-2 h-4 w-4",
+                                                    isSelected ? "opacity-100" : "opacity-0"
+                                                )}
+                                            />
+                                            {label}
+                                        </CommandItem>
+                                    );
+                                })
+                            )}
+                        </CommandGroup>
+                    </Command>
+                </PopoverContent>
+            </Popover>
 
             <Select value={filters.ageGroup} onValueChange={(v) => update("ageGroup", v)}>
                 <SelectTrigger className="w-full">
