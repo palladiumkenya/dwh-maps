@@ -95,7 +95,10 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
     }, [agenciesData]);
 
     const partnersForSelectedAgency = React.useMemo(() => {
-        return agenciesData?.filter((r) => r.agency.toLowerCase() === filters?.agency?.toLowerCase()) ?? [];
+        if (!agenciesData || !filters.agency || filters.agency.length === 0) return [];
+        return agenciesData?.filter((r) =>
+            (filters.agency ?? []).includes(r.agency)
+        );
     }, [agenciesData, filters.agency]);
 
 
@@ -368,35 +371,105 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
                 </PopoverContent>
             </Popover>
 
-            <Select value={filters.agency} onValueChange={(v) => update("agency", v)}>
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Agency" />
-                </SelectTrigger>
-                <SelectContent>
-                    {isLoadingAgencies ? (
-                        <SelectItem value="loading" disabled>Loading...</SelectItem>
-                    ) : (
-                        uniqueAgencies?.map((agency: Agency) => (
-                            <SelectItem key={agency.agency} value={agency.agency}>
-                                {agency.agency}
-                            </SelectItem>
-                        ))
-                    )}
-                </SelectContent>
-            </Select>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        className={cn(
+                            "w-full justify-start text-left",
+                            filters.agency && filters.agency.length > 0 && "bg-green-600 text-white hover:bg-green-700",
+                            filters.agency?.length === 0 && "text-muted-foreground"
+                        )}
+                    >
+                        {(filters.agency ?? []).length > 0
+                            ? filters?.agency?.join(", ")
+                            : "Select Agency"}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0">
+                    <Command>
+                        <CommandGroup>
+                            {isLoadingAgencies ? (
+                                <CommandItem disabled>Loading...</CommandItem>
+                            ) : (
+                                uniqueAgencies?.map((agency, index) => {
+                                    const name = agency.agency;
+                                    const selectedValues = filters.agency ?? [];
+                                    const isSelected = selectedValues.includes(name);
 
-            <Select value={filters.partner} onValueChange={(v) => update("partner", v)}>
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Partner" />
-                </SelectTrigger>
-                <SelectContent>
-                    {partnersForSelectedAgency.map((agency, index) => (
-                        <SelectItem key={`${agency.partnerName}-${index}`} value={agency.partnerName}>
-                            {agency.partnerName}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+                                    return (
+                                        <CommandItem
+                                            key={`${name}-${index}`}
+                                            onSelect={() => {
+                                                const newValue = isSelected
+                                                    ? selectedValues.filter((item) => item !== name)
+                                                    : [...selectedValues, name];
+                                                update("agency", newValue);
+                                            }}
+                                        >
+                                            <Check
+                                                className={cn(
+                                                    "mr-2 h-4 w-4",
+                                                    isSelected ? "opacity-100" : "opacity-0"
+                                                )}
+                                            />
+                                            {name}
+                                        </CommandItem>
+                                    );
+                                })
+                            )}
+                        </CommandGroup>
+                    </Command>
+                </PopoverContent>
+            </Popover>
+
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        className={cn(
+                            "w-full justify-start text-left",
+                            filters.partner && filters.partner.length > 0 && "bg-green-600 text-white hover:bg-green-700",
+                            filters.partner?.length === 0 && "text-muted-foreground"
+                        )}
+                    >
+                        {(filters.partner ?? []).length > 0
+                            ? filters?.partner?.join(", ")
+                            : "Select Partner"}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0">
+                    <Command>
+                        <CommandGroup>
+                            {partnersForSelectedAgency.map((agency, index) => {
+                                const name = agency.partnerName;
+                                const selectedValues = filters.partner ?? [];
+                                const isSelected = selectedValues.includes(name);
+
+                                return (
+                                    <CommandItem
+                                        key={`${name}-${index}`}
+                                        onSelect={() => {
+                                            const newValue = isSelected
+                                                ? selectedValues.filter((item) => item !== name)
+                                                : [...selectedValues, name];
+                                            update("partner", newValue);
+                                        }}
+                                    >
+                                        <Check
+                                            className={cn(
+                                                "mr-2 h-4 w-4",
+                                                isSelected ? "opacity-100" : "opacity-0"
+                                            )}
+                                        />
+                                        {name}
+                                    </CommandItem>
+                                );
+                            })}
+                        </CommandGroup>
+                    </Command>
+                </PopoverContent>
+            </Popover>
 
             {/* Filter and Reset buttons */}
             <Button className="w-full">Filter</Button>
