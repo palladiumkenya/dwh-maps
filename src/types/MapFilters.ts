@@ -3,10 +3,10 @@ export interface MapFilters {
     counties?: string[];
     subCounty?: string[];
     sex?: string[];
-    ageGroup?: string;
+    ageGroup?: string[];
     agency?: string;
     partner?: string;
-    facilityName?: string;
+    facilityName?: string[];
     choroplethEnabled?: boolean;
     bubbleMapEnabled?: boolean;
 }

@@ -3,16 +3,17 @@ interface MapQueryParams {
     counties?: string[];
     subCounty?: string[];
     sex?: string[];
-    ageGroup?: string;
+    ageGroup?: string[];
     agency?: string;
     partner?: string;
+    facilityName?: string[];
 }
 
 export async function getMapData(params: MapQueryParams) {
     const query = new URLSearchParams();
 
     Object.entries(params).forEach(([key, value]) => {
-        if (!value || key === "choroplethEnabled") return;
+        if (!value || key === "choroplethEnabled" || key === "bubbleMapEnabled") return;
 
         if (key === "counties" && Array.isArray(value)) {
             value.forEach((county) => {
@@ -25,6 +26,14 @@ export async function getMapData(params: MapQueryParams) {
         } else if(key === "sex" && Array.isArray(value)) {
             value.forEach((sex) => {
                 query.append("Sex", sex);
+            });
+        } else if(key === "facilityName" && Array.isArray(value)) {
+            value.forEach((facilityName) => {
+                query.append("FacilityName", facilityName);
+            });
+        } else if(key === "ageGroup" && Array.isArray(value)) {
+            value.forEach((ageGroup) => {
+                query.append("AgeGroup", ageGroup);
             });
         }
         else {

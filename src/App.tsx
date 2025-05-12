@@ -12,10 +12,10 @@ function App() {
         counties: [],
         subCounty: [],
         sex: [],
-        ageGroup: "",
+        ageGroup: [],
         agency: "",
         partner: "",
-        facilityName: "",
+        facilityName: [],
         choroplethEnabled: true,
         bubbleMapEnabled: false,
     });

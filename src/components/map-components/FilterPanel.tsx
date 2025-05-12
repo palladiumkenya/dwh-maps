@@ -216,18 +216,53 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
                 </PopoverContent>
             </Popover>
 
-            <Select value={filters.facilityName} onValueChange={(v) => update("facilityName", v)}>
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Facility Name" />
-                </SelectTrigger>
-                <SelectContent>
-                    {partnersForSelectedSubCounty.map((subCounty, index) => (
-                        <SelectItem key={`${subCounty.facilityName}-${index}`} value={subCounty.facilityName}>
-                            {subCounty.facilityName}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        className={cn(
+                            "w-full justify-start text-left",
+                            filters.facilityName && filters.facilityName.length > 0 && "bg-green-600 text-white hover:bg-green-700",
+                            filters.facilityName?.length === 0 && "text-muted-foreground"
+                        )}
+                    >
+                        {(filters.facilityName ?? []).length > 0
+                            ? filters?.facilityName?.join(", ")
+                            : "Select Facility Name"}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0">
+                    <Command>
+                        <CommandGroup>
+                            {partnersForSelectedSubCounty.map((subCounty, index) => {
+                                const name = subCounty.facilityName;
+                                const selectedValues = filters.facilityName ?? [];
+                                const isSelected = selectedValues.includes(name);
+
+                                return (
+                                    <CommandItem
+                                        key={`${name}-${index}`}
+                                        onSelect={() => {
+                                            const newValue = isSelected
+                                                ? selectedValues.filter((item) => item !== name)
+                                                : [...selectedValues, name];
+                                            update("facilityName", newValue);
+                                        }}
+                                    >
+                                        <Check
+                                            className={cn(
+                                                "mr-2 h-4 w-4",
+                                                isSelected ? "opacity-100" : "opacity-0"
+                                            )}
+                                        />
+                                        {name}
+                                    </CommandItem>
+                                );
+                            })}
+                        </CommandGroup>
+                    </Command>
+                </PopoverContent>
+            </Popover>
 
             <Popover>
                 <PopoverTrigger asChild>
@@ -281,22 +316,57 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
                 </PopoverContent>
             </Popover>
 
-            <Select value={filters.ageGroup} onValueChange={(v) => update("ageGroup", v)}>
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Age Category" />
-                </SelectTrigger>
-                <SelectContent>
-                    {isLoadingAgeGroups ? (
-                        <SelectItem value="loading" disabled>Loading...</SelectItem>
-                    ) : (
-                        ageGroupsData?.map((ageGroup: AgeGroup) => (
-                            <SelectItem key={ageGroup.ageGroup} value={ageGroup.ageGroup}>
-                                {ageGroup.ageGroup}
-                            </SelectItem>
-                        ))
-                    )}
-                </SelectContent>
-            </Select>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        className={cn(
+                            "w-full justify-start text-left",
+                            filters.ageGroup && filters.ageGroup.length > 0 && "bg-green-600 text-white hover:bg-green-700",
+                            filters.ageGroup?.length === 0 && "text-muted-foreground"
+                        )}
+                    >
+                        {(filters.ageGroup ?? []).length > 0
+                            ? filters?.ageGroup?.join(", ")
+                            : "Select Age Category"}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0">
+                    <Command>
+                        <CommandGroup>
+                            {isLoadingAgeGroups ? (
+                                <CommandItem disabled>Loading...</CommandItem>
+                            ) : (
+                                ageGroupsData?.map((ageGroup, index) => {
+                                    const label = ageGroup.ageGroup;
+                                    const selectedValues = filters.ageGroup ?? [];
+                                    const isSelected = selectedValues.includes(label);
+
+                                    return (
+                                        <CommandItem
+                                            key={`${label}-${index}`}
+                                            onSelect={() => {
+                                                const newValue = isSelected
+                                                    ? selectedValues.filter((item) => item !== label)
+                                                    : [...selectedValues, label];
+                                                update("ageGroup", newValue);
+                                            }}
+                                        >
+                                            <Check
+                                                className={cn(
+                                                    "mr-2 h-4 w-4",
+                                                    isSelected ? "opacity-100" : "opacity-0"
+                                                )}
+                                            />
+                                            {label}
+                                        </CommandItem>
+                                    );
+                                })
+                            )}
+                        </CommandGroup>
+                    </Command>
+                </PopoverContent>
+            </Popover>
 
             <Select value={filters.agency} onValueChange={(v) => update("agency", v)}>
                 <SelectTrigger className="w-full">

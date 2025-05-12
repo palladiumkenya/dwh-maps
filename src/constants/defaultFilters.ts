@@ -8,7 +8,7 @@ export const defaultMapFilters: MapFilters = {
     ageGroup: "",
     agency: "",
     partner: "",
-    facilityName: "",
+    facilityName: [],
     choroplethEnabled: true,
     bubbleMapEnabled: false,
 };
