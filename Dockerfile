@@ -14,8 +14,9 @@ FROM nginx:stable-alpine
 # Copy the build output to Nginx's public folder
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Optional: Custom Nginx config (see below)
-# COPY nginx.conf /etc/nginx/nginx.conf
+# Copy the entrypoint script and make it executable
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Expose port
 EXPOSE 80
