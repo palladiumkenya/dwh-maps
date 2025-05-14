@@ -21,5 +21,5 @@ RUN chmod +x /entrypoint.sh
 # Expose port
 EXPOSE 80
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Use entrypoint to inject env into runtime-config.js
+ENTRYPOINT ["/entrypoint.sh"]
