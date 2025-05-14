@@ -1,7 +1,7 @@
 // src/lib/config.ts
 type RuntimeConfig = {
     API_BASE_URL: string;
-    [key: string]: any;
+    [key: string]: unknown;
 };
 
 declare global {
