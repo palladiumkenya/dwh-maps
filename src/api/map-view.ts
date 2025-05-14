@@ -9,6 +9,10 @@ interface MapQueryParams {
     facilityName?: string[];
 }
 
+import {getRuntimeConfig} from "@/lib/config.ts";
+
+const { API_BASE_URL } = getRuntimeConfig();
+
 export async function getMapData(params: MapQueryParams) {
     const query = new URLSearchParams();
 
@@ -50,7 +54,7 @@ export async function getMapData(params: MapQueryParams) {
     });
 
     const res = await fetch(
-        `https://live.kenyahmis.org/api/CsRealtimePoint/All?${query.toString()}`
+        `${API_BASE_URL}/api/CsRealtimePoint/All?${query.toString()}`
     );
 
     if (!res.ok) throw new Error("Failed to fetch map data");
