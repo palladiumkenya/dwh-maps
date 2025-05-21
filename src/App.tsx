@@ -4,6 +4,7 @@ import {MapView} from "@/components/map-components/MapView.tsx";
 import {useRef, useState} from "react";
 import type {MapFilters} from "@/types/MapFilters.ts";
 import L from "leaflet";
+import {NavigationHeader} from "@/components/header/NavigationHeader.tsx";
 
 function App() {
     const mapRef = useRef<L.Map | null>(null);
@@ -27,6 +28,7 @@ function App() {
     return (
         <div className="w-screen h-screen flex flex-col bg-gray-100">
             <Header />
+            <NavigationHeader />
 
             <div className="flex flex-1 overflow-hidden">
                 <FilterPanel

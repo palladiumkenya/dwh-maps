@@ -20,7 +20,7 @@ export function Header() {
 
             {/* Title */}
             <h1 className="text-xl font-bold text-gray-800">
-                HIV Surveillance Investigation
+                Hotspot Maps
             </h1>
         </div>
     );
