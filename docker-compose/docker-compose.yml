@@ -5,6 +5,6 @@ services:
       container_name: dwhmaps
       restart: always
       environment:
-        - REACT_APP_API_URL=${APP_API_URL}
+        - API_BASE_URL=${APP_API_URL}
       ports:
         - "${APP_PORT}:${APP_HOST_PORT}"
