@@ -1,8 +1,4 @@
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const navItems = [
     {
@@ -33,8 +29,16 @@ const navItems = [
 
 export const NavigationHeader = () => {
     return (
-        <div className="bg-purple-700 text-white text-base font-semibold shadow">
-            <div className="flex justify-center items-center space-x-12 py-10">
+        <div className="relative bg-purple-700 text-white text-base font-semibold shadow overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none">
+                <img
+                    src="/banner/Element.png"
+                    alt="banner"
+                    className="w-full h-full object-cover opacity-100"
+                />
+            </div>
+
+            <div className="relative z-10 flex justify-center items-center space-x-12 py-10">
                 {navItems.map(({ label, tooltip, href }) => (
                     <Tooltip key={label}>
                         <TooltipTrigger asChild>
