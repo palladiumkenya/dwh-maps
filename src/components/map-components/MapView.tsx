@@ -11,11 +11,12 @@ import kenyaCounties from '@/data/kenya-counties-simplified.json';
 import {useQuery} from "@tanstack/react-query";
 import {getMapData} from "@/api/map-view.ts";
 import type {MapFilters} from "@/types/MapFilters.ts";
-import {useEffect, useRef} from "react";
+import {useEffect, useRef, useState} from "react";
 import L from "leaflet";
 import ZoomToCounty from "@/components/map-components/ZoomToCounty.tsx";
 import MapLegend from "@/components/map-components/MapLegend.tsx";
 import * as React from "react";
+import MapInfoControl from "@/components/map-components/MapInfoControl.tsx";
 
 type CountyPoint = { county: string; count: number; rate: number };
 type FacilityPoint = {
@@ -33,6 +34,7 @@ interface MapViewProps {
 
 export function MapView({ filters, mapRef }: MapViewProps) {
     const geoJsonRef = useRef<L.GeoJSON>(null);
+    const [hoveredCounty, setHoveredCounty] = useState<{ name: string; rate: number } | undefined>();
 
     const { data, isLoading } = useQuery({
         queryKey: ["map-data", filters],
@@ -69,21 +71,45 @@ export function MapView({ filters, mapRef }: MapViewProps) {
         };
     };
 
+    // const highlightFeature = (e: L.LeafletMouseEvent) => {
+    //     const layer = e.target;
+    //     layer.setStyle({
+    //         weight: 3,
+    //         color: "#666",
+    //         dashArray: "",
+    //         fillOpacity: 0.7,
+    //     });
+    //     if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+    //         layer.bringToFront();
+    //     }
+    // };
+
     const highlightFeature = (e: L.LeafletMouseEvent) => {
         const layer = e.target;
+        const props = layer.feature?.properties;
+        const rate = getRateByCounty(props?.shapeName);
+
+        setHoveredCounty({ name: props?.shapeName, rate: rate ?? 0 });
+
         layer.setStyle({
             weight: 3,
             color: "#666",
             dashArray: "",
             fillOpacity: 0.7,
         });
+
         if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
             layer.bringToFront();
         }
     };
 
+    // const resetHighlight = (e: L.LeafletMouseEvent) => {
+    //     geoJsonRef.current?.resetStyle(e.target);
+    // };
+
     const resetHighlight = (e: L.LeafletMouseEvent) => {
         geoJsonRef.current?.resetStyle(e.target);
+        setHoveredCounty(undefined);
     };
 
     const onEachFeature = (_feature: Feature<Geometry, GeoJsonProperties>, layer: L.Layer) => {
@@ -128,6 +154,7 @@ export function MapView({ filters, mapRef }: MapViewProps) {
                         <SetMapRef mapRef={mapRef} />
                         <ZoomToCounty countyNames={filters.counties}/>
                         <MapLegend />
+                        <MapInfoControl hoveredCounty={hoveredCounty} />
                     </>
                 )}
 
