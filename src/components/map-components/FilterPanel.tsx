@@ -14,7 +14,7 @@ import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {Button} from "@/components/ui/button.tsx";
-import { Download } from "lucide-react";
+// import { Download } from "lucide-react";
 import {useQuery} from "@tanstack/react-query";
 import {getAgeGroups, getAgencies, getIndicators, getRegions, getSex} from "@/api/filters.ts";
 import type {Indicator} from "@/types/indicator.ts";
@@ -504,10 +504,10 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
             </div>
 
             {/* Download */}
-            <Button className="w-full mt-2" variant="outline">
-                <Download className="mr-2 h-4 w-4" />
-                Download Result
-            </Button>
+            {/*<Button className="w-full mt-2" variant="outline">*/}
+            {/*    <Download className="mr-2 h-4 w-4" />*/}
+            {/*    Download Result*/}
+            {/*</Button>*/}
         </div>
     );
 };
