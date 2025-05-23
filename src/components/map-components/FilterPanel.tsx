@@ -103,9 +103,7 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
 
 
     return (
-        <div className="p-4 w-80 bg-white border-r space-y-4">
-
-            {/* Indicator */}
+        <div className="p-4 w-80 bg-white border-r space-y-4 max-h-screen overflow-y-auto">
             <Select value={filters.indicator} onValueChange={(v) => update("indicator", v)}>
                 <SelectTrigger className="w-full">
                     <SelectValue placeholder="Indicator" />
