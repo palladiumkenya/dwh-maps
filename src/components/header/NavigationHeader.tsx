@@ -29,7 +29,7 @@ const navItems = [
 
 export const NavigationHeader = () => {
     return (
-        <div className="relative bg-purple-700 text-white text-base font-semibold shadow overflow-hidden">
+        <div className="relative text-white text-base font-semibold shadow overflow-hidden" style={{ backgroundColor: '#8F43AE' }}>
             <div className="absolute inset-0 pointer-events-none">
                 <img
                     src="/banner/Element.png"
