@@ -139,7 +139,7 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
                     >
                         {(filters.counties ?? []).length > 0
                             ? (filters.counties ?? []).join(", ")
-                            : "Select County"}
+                            : `Select County (${uniqueCounties.length})`}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[300px] p-0">
@@ -187,7 +187,7 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
                     >
                         {(filters.subCounty ?? []).length > 0
                             ? filters?.subCounty?.join(", ")
-                            : "Select Sub County"}
+                            : `Select Sub County (${subCounties.length})`}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[300px] p-0">
@@ -235,7 +235,7 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
                     >
                         {(filters.facilityName ?? []).length > 0
                             ? filters?.facilityName?.join(", ")
-                            : "Select Facility Name"}
+                            : `Select Facility Name (${facilities.length})`}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[300px] p-0">
@@ -283,7 +283,9 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
                     >
                         {(filters.sex ?? []).length > 0
                             ? filters?.sex?.join(", ")
-                            : "Select Sex"}
+                            : isLoadingSex
+                                ? "Loading Sex..."
+                                : `Select Sex (${sexData?.length ?? 0})`}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[300px] p-0">
@@ -335,7 +337,9 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
                     >
                         {(filters.ageGroup ?? []).length > 0
                             ? filters?.ageGroup?.join(", ")
-                            : "Select Age Category"}
+                            : isLoadingAgeGroups
+                                ? "Loading Age Category..."
+                                : `Select Age Category (${ageGroupsData?.length ?? 0})`}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[300px] p-0">
@@ -387,7 +391,9 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
                     >
                         {(filters.agency ?? []).length > 0
                             ? filters?.agency?.join(", ")
-                            : "Select Agency"}
+                            : isLoadingAgencies
+                                ? "Loading Agency..."
+                                : `Select Agency (${uniqueAgencies?.length ?? 0})`}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[300px] p-0">
@@ -439,7 +445,7 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
                     >
                         {(filters.partner ?? []).length > 0
                             ? filters?.partner?.join(", ")
-                            : "Select Partner"}
+                            : `Select Partner (${partnersForSelectedAgency.length})`}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[300px] p-0">

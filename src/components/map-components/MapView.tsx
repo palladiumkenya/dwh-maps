@@ -27,6 +27,7 @@ import ZoomToCounty from "@/components/map-components/ZoomToCounty.tsx";
 import MapLegend from "@/components/map-components/MapLegend.tsx";
 import MapInfoControl from "@/components/map-components/MapInfoControl.tsx";
 import type {CountyPoint, SubCountyPoint, WardPoint} from "@/types/MapData";
+import {MapTabs} from "@/components/map-components/MapTabs.tsx";
 
 type FacilityPoint = {
     facilityName: string;
@@ -53,6 +54,8 @@ export function MapView({ filters, mapRef }: MapViewProps) {
 
     const [selectedCounty, setSelectedCounty] = useState<string[]>(filters.counties ?? []);
     const [selectedSubCounty, setSelectedSubCounty] = useState<string[]>(filters.subCounty ?? []);
+
+    const [activeTab, setActiveTab] = useState<"realtime" | "monthly">("realtime");
 
     useEffect(() => {
         setSelectedCounty(filters.counties ?? []);
@@ -149,24 +152,29 @@ export function MapView({ filters, mapRef }: MapViewProps) {
         setHoveredRegion(undefined);
     };
 
-    const onEachCounty = (_feature: Feature, layer: L.Layer) => {
+    const onEachFeature = (feature: Feature, layer: L.Layer) => {
         layer.on({
             mouseover: highlightFeature,
             mouseout: resetHighlight,
         });
-    };
 
-    const onEachSubCounty = (_feature: Feature, layer: L.Layer) => {
-        layer.on({
-            mouseover: highlightFeature,
-            mouseout: resetHighlight,
-        });
-    };
+        const props = feature.properties;
+        const name =
+            props?.ward ||
+            props?.WARD ||
+            props?.ADM2_EN ||
+            props?.SUB_COUNTY ||
+            props?.shapeName ||
+            props?.COUNTY;
 
-    const onEachWard = (_feature: Feature, layer: L.Layer) => {
-        layer.on({
-            mouseover: highlightFeature,
-            mouseout: resetHighlight,
+        const rate = getRate(name);
+        const tooltipContent = `${name}${rate !== undefined ? `: ${rate.toFixed(2)}%` : ""}`;
+
+        layer.bindTooltip(tooltipContent, {
+            sticky: true,
+            direction: "top",
+            opacity: 0.9,
+            className: "leaflet-tooltip-custom", // Optional for styling
         });
     };
 
@@ -208,7 +216,7 @@ export function MapView({ filters, mapRef }: MapViewProps) {
                     key={`wards-${selectedSubCounty.join(",")}`}
                     data={{ ...kenyaWards, features: filteredWards } as FeatureCollection<Geometry, GeoJsonProperties>}
                     style={commonStyle}
-                    onEachFeature={onEachWard}
+                    onEachFeature={onEachFeature}
                 />
             );
         }
@@ -223,7 +231,7 @@ export function MapView({ filters, mapRef }: MapViewProps) {
                     key={`subcounties-${selectedCounty.join(",")}`}
                     data={{ ...kenyaSubCounties, features: filteredSubCounties } as FeatureCollection<Geometry, GeoJsonProperties>}
                     style={commonStyle}
-                    onEachFeature={onEachSubCounty}
+                    onEachFeature={onEachFeature}
                 />
             );
         }
@@ -233,80 +241,83 @@ export function MapView({ filters, mapRef }: MapViewProps) {
                 key="counties-default"
                 data={kenyaCounties as FeatureCollection}
                 style={commonStyle}
-                onEachFeature={onEachCounty}
+                onEachFeature={onEachFeature}
                 ref={geoJsonRef}
             />
         );
     };
 
     return (
-        <div className="h-full w-full relative">
-            <MapContainer
-                ref={mapRef}
-                center={[0.0236, 37.9062]}
-                zoom={7}
-                scrollWheelZoom={true}
-                className="h-full w-full z-0"
-            >
-                <LayersControl position={"topright"}>
-                    <BaseLayer checked name="OpenStreetMap">
-                        <TileLayer
-                            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-                    </BaseLayer>
+        <div className="h-full w-full flex flex-col">
+            <MapTabs activeTab={activeTab} onChange={setActiveTab} />
+            <div className="flex-1 relative">
+                <MapContainer
+                    ref={mapRef}
+                    center={[0.0236, 37.9062]}
+                    zoom={7}
+                    scrollWheelZoom={true}
+                    className="h-full w-full z-0"
+                >
+                    <LayersControl position={"topright"}>
+                        <BaseLayer checked name="OpenStreetMap">
+                            <TileLayer
+                                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            />
+                        </BaseLayer>
 
-                    <BaseLayer name="ESRI Satellite">
-                        <TileLayer
-                            attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS'
-                            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                        />
-                    </BaseLayer>
+                        <BaseLayer name="ESRI Satellite">
+                            <TileLayer
+                                attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS'
+                                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                            />
+                        </BaseLayer>
 
-                    <BaseLayer name="Carto Light">
-                        <TileLayer
-                            attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-                            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-                        />
-                    </BaseLayer>
-                </LayersControl>
+                        <BaseLayer name="Carto Light">
+                            <TileLayer
+                                attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+                                url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                            />
+                        </BaseLayer>
+                    </LayersControl>
 
 
-                {filters.choroplethEnabled && !isLoading && (
-                    <>
-                        {renderGeoLayer()}
-                        <SetMapRef mapRef={mapRef} />
-                        <ZoomToCounty countyNames={filters.counties} />
-                        <MapLegend />
-                        <MapInfoControl hoveredCounty={hoveredRegion} />
-                    </>
-                )}
+                    {filters.choroplethEnabled && !isLoading && (
+                        <>
+                            {renderGeoLayer()}
+                            <SetMapRef mapRef={mapRef} />
+                            <ZoomToCounty countyNames={filters.counties} />
+                            <MapLegend />
+                            <MapInfoControl hoveredCounty={hoveredRegion} />
+                        </>
+                    )}
 
-                {filters.bubbleMapEnabled &&
-                    !isLoading &&
-                    data?.facilityPoints.map((point: FacilityPoint, idx: number) => (
-                        <CircleMarker
-                            key={idx}
-                            center={[point.lat, point.long]}
-                            radius={Math.max(4, point.count * 2)}
-                            pathOptions={{
-                                color: "#2563eb",
-                                fillColor: "#3b82f6",
-                                fillOpacity: 0.5,
-                            }}
-                        >
-                            <Popup>
-                                <div>
-                                    <strong>{point.facilityName}</strong>
-                                    <br />
-                                    Count: {point.count}
-                                    <br />
-                                    Rate: {point.rate.toFixed(2)}%
-                                </div>
-                            </Popup>
-                        </CircleMarker>
-                    ))}
-            </MapContainer>
+                    {filters.bubbleMapEnabled &&
+                        !isLoading &&
+                        data?.facilityPoints.map((point: FacilityPoint, idx: number) => (
+                            <CircleMarker
+                                key={idx}
+                                center={[point.lat, point.long]}
+                                radius={Math.max(4, point.count * 2)}
+                                pathOptions={{
+                                    color: "#2563eb",
+                                    fillColor: "#3b82f6",
+                                    fillOpacity: 0.5,
+                                }}
+                            >
+                                <Popup>
+                                    <div>
+                                        <strong>{point.facilityName}</strong>
+                                        <br />
+                                        Count: {point.count}
+                                        <br />
+                                        Rate: {point.rate.toFixed(2)}%
+                                    </div>
+                                </Popup>
+                            </CircleMarker>
+                        ))}
+                </MapContainer>
+            </div>
         </div>
     );
 }
