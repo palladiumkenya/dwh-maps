@@ -71,19 +71,23 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
         }) ?? [];
     }, [regionsData]);
 
-    const subCountiesForSelectedCounty = React.useMemo(() => {
-        if (!regionsData || !filters.counties || filters.counties.length === 0) return [];
-        return regionsData?.filter((r) =>
-            (filters.counties ?? []).includes(r.county)
-        );
-    }, [regionsData, filters.counties]);
+    const subCounties = React.useMemo(() => {
+        const seen = new Set<string>();
+        return regionsData?.filter((r) => {
+            if (seen.has(r.subCounty)) return false;
+            seen.add(r.subCounty);
+            return true;
+        }) ?? [];
+    }, [regionsData]);
 
-    const partnersForSelectedSubCounty = React.useMemo(() => {
-        if (!regionsData || !filters.subCounty || filters.subCounty.length === 0) return [];
-        return regionsData?.filter((r) =>
-            (filters.subCounty ?? []).includes(r.subCounty)
-        );
-    }, [regionsData, filters.subCounty]);
+    const facilities = React.useMemo(() => {
+        const seen = new Set<string>();
+        return regionsData?.filter((r) => {
+            if (seen.has(r.facilityName)) return false;
+            seen.add(r.facilityName);
+            return true;
+        }) ?? [];
+    }, [regionsData]);
 
     const uniqueAgencies = React.useMemo(() => {
         const seen = new Set<string>();
@@ -95,11 +99,13 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
     }, [agenciesData]);
 
     const partnersForSelectedAgency = React.useMemo(() => {
-        if (!agenciesData || !filters.agency || filters.agency.length === 0) return [];
-        return agenciesData?.filter((r) =>
-            (filters.agency ?? []).includes(r.agency)
-        );
-    }, [agenciesData, filters.agency]);
+        const seen = new Set<string>();
+        return agenciesData?.filter((r) => {
+            if (seen.has(r.partnerName)) return false;
+            seen.add(r.partnerName);
+            return true;
+        }) ?? [];
+    }, [agenciesData]);
 
 
     return (
@@ -187,7 +193,7 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
                 <PopoverContent className="w-[300px] p-0">
                     <Command>
                         <CommandGroup>
-                            {subCountiesForSelectedCounty.map((region, index) => {
+                            {subCounties.map((region, index) => {
                                 const subCountyName = region.subCounty;
                                 const selectedSubCounties = filters.subCounty ?? [];
                                 const isSelected = selectedSubCounties.includes(subCountyName);
@@ -235,7 +241,7 @@ const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
                 <PopoverContent className="w-[300px] p-0">
                     <Command>
                         <CommandGroup>
-                            {partnersForSelectedSubCounty.map((subCounty, index) => {
+                            {facilities.map((subCounty, index) => {
                                 const name = subCounty.facilityName;
                                 const selectedValues = filters.facilityName ?? [];
                                 const isSelected = selectedValues.includes(name);

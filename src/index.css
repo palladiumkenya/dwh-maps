@@ -129,3 +129,8 @@
   color: #333;
 }
 
+/* Only allow pointer events on the stroke (outline), not the fill */
+.leaflet-interactive.geo-boundary {
+  pointer-events: stroke;
+}
+
