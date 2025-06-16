@@ -16,7 +16,6 @@ import type {
 
 import kenyaCountiesRaw from "@/data/kenya-counties-simplified.json";
 import kenyaSubCountiesRaw from "@/data/kenya-subcounties-simplied.json";
-// import kenyaWardsRaw from "@/data/kenya_wards.json";
 
 import { useQuery } from "@tanstack/react-query";
 import { getMapData } from "@/api/map-view.ts";
