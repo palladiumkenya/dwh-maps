@@ -16,7 +16,7 @@ import type {
 
 import kenyaCountiesRaw from "@/data/kenya-counties-simplified.json";
 import kenyaSubCountiesRaw from "@/data/kenya-subcounties-simplied.json";
-import kenyaWardsRaw from "@/data/kenya_wards.json";
+// import kenyaWardsRaw from "@/data/kenya_wards.json";
 
 import { useQuery } from "@tanstack/react-query";
 import { getMapData } from "@/api/map-view.ts";
@@ -45,9 +45,11 @@ interface MapViewProps {
 export function MapView({ filters, mapRef }: MapViewProps) {
     const { BaseLayer } = LayersControl;
 
-    const kenyaWards = kenyaWardsRaw as FeatureCollection<Geometry, GeoJsonProperties>;
     const kenyaSubCounties = kenyaSubCountiesRaw as FeatureCollection<Geometry, GeoJsonProperties>;
     const kenyaCounties = kenyaCountiesRaw as FeatureCollection<Geometry, GeoJsonProperties>;
+
+    const [kenyaWards, setKenyaWards] = useState<FeatureCollection<Geometry, GeoJsonProperties> | null>(null);
+    const [isWardsLoading, setIsWardsLoading] = useState(false);
 
     const geoJsonRef = useRef<L.GeoJSON>(null);
     const [hoveredRegion, setHoveredRegion] = useState<{ name: string; rate: number } | undefined>();
@@ -70,6 +72,22 @@ export function MapView({ filters, mapRef }: MapViewProps) {
         queryFn: () => getMapData(filters),
         enabled: !!filters,
     });
+
+    useEffect(() => {
+        if (selectedSubCounty.length > 0 && !kenyaWards && !isWardsLoading) {
+            setIsWardsLoading(true);
+            import("@/data/kenya_wards.json")
+                .then((module) => {
+                    setKenyaWards(module.default as FeatureCollection<Geometry, GeoJsonProperties>);
+                })
+                .catch((error) => {
+                    console.error("Failed to load kenya_wards.json:", error);
+                })
+                .finally(() => {
+                    setIsWardsLoading(false);
+                });
+        }
+    }, [selectedSubCounty, kenyaWards, isWardsLoading]);
 
     const normalize = (value: string) =>
         value.toLowerCase().replace(/\s*ward$/, '').trim();
@@ -191,6 +209,10 @@ export function MapView({ filters, mapRef }: MapViewProps) {
         if (!map || isLoading) return;
 
         if (selectedSubCounty.length > 0) {
+            if (isWardsLoading || !kenyaWards) {
+                return;
+            }
+
             const matchingWards = kenyaWards.features.filter((f) =>
                 selectedSubCounty.map((b) => `${b.toLowerCase()} sub county`).includes(f.properties?.subcounty?.toLowerCase())
             );
@@ -206,7 +228,7 @@ export function MapView({ filters, mapRef }: MapViewProps) {
     }, [selectedCounty, selectedSubCounty, isLoading]);
 
     const renderGeoLayer = () => {
-        if (selectedSubCounty.length > 0) {
+        if (selectedSubCounty.length > 0 && kenyaWards) {
             const filteredWards = kenyaWards.features.filter((f) =>
                 selectedSubCounty.map((b) => `${b.toLowerCase()} sub county`).includes(f.properties?.subcounty?.toLowerCase())
             );
@@ -250,6 +272,13 @@ export function MapView({ filters, mapRef }: MapViewProps) {
     return (
         <div className="h-full w-full flex flex-col">
             <MapTabs activeTab={activeTab} onChange={setActiveTab} />
+
+            {isWardsLoading && (
+                <div className="absolute inset-0 z-[1000] bg-white bg-opacity-60 flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-500"></div>
+                </div>
+            )}
+
             <div className="flex-1 relative">
                 <MapContainer
                     ref={mapRef}
@@ -277,6 +306,20 @@ export function MapView({ filters, mapRef }: MapViewProps) {
                             <TileLayer
                                 attribution='&copy; <a href="https://carto.com/">CARTO</a>'
                                 url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                            />
+                        </BaseLayer>
+
+                        <BaseLayer name="Stamen">
+                            <TileLayer
+                                url="https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg"
+                                attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>'
+                            />
+                        </BaseLayer>
+
+                        <BaseLayer name="OpenTopoMap">
+                            <TileLayer
+                                url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+                                attribution='Map data: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
                             />
                         </BaseLayer>
                     </LayersControl>
