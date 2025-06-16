@@ -4,7 +4,7 @@ import {
     GeoJSON,
     CircleMarker,
     Popup,
-    useMap,
+    useMap, LayersControl,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import type {
@@ -42,6 +42,8 @@ interface MapViewProps {
 }
 
 export function MapView({ filters, mapRef }: MapViewProps) {
+    const { BaseLayer } = LayersControl;
+
     const kenyaWards = kenyaWardsRaw as FeatureCollection<Geometry, GeoJsonProperties>;
     const kenyaSubCounties = kenyaSubCountiesRaw as FeatureCollection<Geometry, GeoJsonProperties>;
     const kenyaCounties = kenyaCountiesRaw as FeatureCollection<Geometry, GeoJsonProperties>;
@@ -246,10 +248,29 @@ export function MapView({ filters, mapRef }: MapViewProps) {
                 scrollWheelZoom={true}
                 className="h-full w-full z-0"
             >
-                <TileLayer
-                    attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
+                <LayersControl position={"topright"}>
+                    <BaseLayer checked name="OpenStreetMap">
+                        <TileLayer
+                            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+                    </BaseLayer>
+
+                    <BaseLayer name="ESRI Satellite">
+                        <TileLayer
+                            attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS'
+                            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                        />
+                    </BaseLayer>
+
+                    <BaseLayer name="Carto Light">
+                        <TileLayer
+                            attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+                            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                        />
+                    </BaseLayer>
+                </LayersControl>
+
 
                 {filters.choroplethEnabled && !isLoading && (
                     <>
