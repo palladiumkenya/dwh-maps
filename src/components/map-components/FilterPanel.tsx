@@ -11,7 +11,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
-import { Check } from "lucide-react";
+import {CalendarIcon, Check} from "lucide-react";
 import { cn } from "@/lib/utils";
 import {Button} from "@/components/ui/button.tsx";
 // import { Download } from "lucide-react";
@@ -34,6 +34,10 @@ import {Switch} from "@/components/ui/switch.tsx";
 import type {MapFilters} from "@/types/MapFilters.ts";
 import * as React from "react";
 import {defaultMapFilters} from "@/constants/defaultFilters.ts";
+import {useEffect, useState} from "react";
+import {format} from "date-fns";
+import {Calendar} from "@/components/ui/calendar.tsx";
+import type {DateRange} from "react-day-picker";
 
 interface Props {
     filters: MapFilters;
@@ -45,6 +49,23 @@ interface Props {
 const FilterPanel = ({ filters, setFilters, resetMapView, activeTab }: Props) => {
     const update = (key: keyof MapFilters, value: string | boolean | string []) =>
         setFilters((prev) => ({ ...prev, [key]: value }));
+
+    const [dateRange, setDateRange] = useState<DateRange | undefined>(
+        filters.startPeriod
+            ? {
+                from: new Date(filters.startPeriod),
+                to: filters.endPeriod ? new Date(filters.endPeriod) : undefined,
+            }
+            : undefined,
+    );
+
+    useEffect(() => {
+        setFilters((prev) => ({
+            ...prev,
+            startPeriod: dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined,
+            endPeriod: dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined,
+        }))
+    }, [dateRange]);
 
     const { data: indicators, isLoading } = useQuery<Indicator[]>({
         queryKey: ["indicators", activeTab],
@@ -135,6 +156,43 @@ const FilterPanel = ({ filters, setFilters, resetMapView, activeTab }: Props) =>
                     )}
                 </SelectContent>
             </Select>
+
+            <div>
+                <label className="text-sm font-medium text-gray-700 mb-1 block">Date Range</label>
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !dateRange?.from && "text-muted-foreground"
+                            )}
+                        >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {dateRange?.from ? (
+                                dateRange?.to ? (
+                                    <>
+                                        {format(dateRange.from, "PPP")} - {format(dateRange.to, "PPP")}
+                                    </>
+                                ) : (
+                                    format(dateRange.from, "PPP")
+                                )
+                            ) : (
+                                <span>Select date range</span>
+                            )}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                        <Calendar
+                            initialFocus
+                            mode="range"
+                            selected={dateRange}
+                            onSelect={(range) => setDateRange(range)}
+                            numberOfMonths={2}
+                        />
+                    </PopoverContent>
+                </Popover>
+            </div>
 
             <Popover>
                 <PopoverTrigger asChild>

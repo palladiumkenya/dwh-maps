@@ -7,6 +7,8 @@ interface MapQueryParams {
     agency?: string[];
     partner?: string[];
     facilityName?: string[];
+    startPeriod?: string;
+    endPeriod?: string;
 }
 
 import {getRuntimeConfig} from "@/lib/config.ts";
@@ -18,6 +20,8 @@ export async function getMapData(params: MapQueryParams, tab: "realtime" | "mont
 
     Object.entries(params).forEach(([key, value]) => {
         if (!value || key === "choroplethEnabled" || key === "bubbleMapEnabled") return;
+
+        if (tab !== "realtime" && (key === "startPeriod" || key === "endPeriod")) return;
 
         if (Array.isArray(value)) {
             const paramMap: Record<string, string> = {
