@@ -27,6 +27,7 @@ import MapLegend from "@/components/map-components/MapLegend.tsx";
 import MapInfoControl from "@/components/map-components/MapInfoControl.tsx";
 import type {CountyPoint, SubCountyPoint, WardPoint} from "@/types/MapData";
 import {MapTabs} from "@/components/map-components/MapTabs.tsx";
+import * as React from "react";
 
 type FacilityPoint = {
     facilityName: string;
@@ -39,9 +40,11 @@ type FacilityPoint = {
 interface MapViewProps {
     filters: MapFilters;
     mapRef: React.RefObject<L.Map | null>;
+    activeTab: "realtime" | "monthly";
+    onTabChange: (tab: "realtime" | "monthly") => void;
 }
 
-export function MapView({ filters, mapRef }: MapViewProps) {
+export function MapView({ filters, mapRef, activeTab, onTabChange }: MapViewProps) {
     const { BaseLayer } = LayersControl;
 
     const kenyaSubCounties = kenyaSubCountiesRaw as FeatureCollection<Geometry, GeoJsonProperties>;
@@ -56,8 +59,6 @@ export function MapView({ filters, mapRef }: MapViewProps) {
     const [selectedCounty, setSelectedCounty] = useState<string[]>(filters.counties ?? []);
     const [selectedSubCounty, setSelectedSubCounty] = useState<string[]>(filters.subCounty ?? []);
 
-    const [activeTab, setActiveTab] = useState<"realtime" | "monthly">("realtime");
-
     useEffect(() => {
         setSelectedCounty(filters.counties ?? []);
     }, [filters.counties]);
@@ -67,8 +68,8 @@ export function MapView({ filters, mapRef }: MapViewProps) {
     }, [filters.subCounty]);
 
     const { data, isLoading } = useQuery({
-        queryKey: ["map-data", filters],
-        queryFn: () => getMapData(filters),
+        queryKey: ["map-data", filters, activeTab],
+        queryFn: () => getMapData(filters, activeTab),
         enabled: !!filters,
     });
 
@@ -270,7 +271,7 @@ export function MapView({ filters, mapRef }: MapViewProps) {
 
     return (
         <div className="h-full w-full flex flex-col">
-            <MapTabs activeTab={activeTab} onChange={setActiveTab} />
+            <MapTabs activeTab={activeTab} onChange={onTabChange} />
 
             {isWardsLoading && (
                 <div className="absolute inset-0 z-[1000] bg-white bg-opacity-60 flex items-center justify-center">

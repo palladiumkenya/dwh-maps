@@ -31,3 +31,33 @@ export async function getAgeGroups() {
     if (!res.ok) throw new Error("Failed to fetch age groups");
     return res.json();
 }
+
+export async function getIndicatorsMonthly() {
+    const res = await fetch(`${API_BASE_URL}/api/GfFilter/Indicator`);
+    if (!res.ok) throw new Error("Failed to fetch GF indicators");
+    return res.json();
+}
+
+export async function getRegionsMonthly() {
+    const res = await fetch(`${API_BASE_URL}/api/GfFilter/Region`);
+    if (!res.ok) throw new Error("Failed to fetch GF regions");
+    return res.json();
+}
+
+export async function getAgenciesMonthly() {
+    const res = await fetch(`${API_BASE_URL}/api/GfFilter/Agency`);
+    if (!res.ok) throw new Error("Failed to fetch GF agencies");
+    return res.json();
+}
+
+export async function getSexMonthly() {
+    const res = await fetch(`${API_BASE_URL}/api/GfFilter/Sex`);
+    if (!res.ok) throw new Error("Failed to fetch GF sex");
+    return res.json();
+}
+
+export async function getAgeGroupsMonthly() {
+    const res = await fetch(`${API_BASE_URL}/api/GfFilter/Age`);
+    if (!res.ok) throw new Error("Failed to fetch GF age groups");
+    return res.json();
+}

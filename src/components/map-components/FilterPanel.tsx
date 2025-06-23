@@ -16,7 +16,15 @@ import { cn } from "@/lib/utils";
 import {Button} from "@/components/ui/button.tsx";
 // import { Download } from "lucide-react";
 import {useQuery} from "@tanstack/react-query";
-import {getAgeGroups, getAgencies, getIndicators, getRegions, getSex} from "@/api/filters.ts";
+import {
+    getAgeGroups, getAgeGroupsMonthly,
+    getAgencies, getAgenciesMonthly,
+    getIndicators,
+    getIndicatorsMonthly,
+    getRegions,
+    getRegionsMonthly,
+    getSex, getSexMonthly
+} from "@/api/filters.ts";
 import type {Indicator} from "@/types/indicator.ts";
 import type {Region} from "@/types/region.ts";
 import type {Agency} from "@/types/agency.ts";
@@ -31,35 +39,36 @@ interface Props {
     filters: MapFilters;
     setFilters: React.Dispatch<React.SetStateAction<MapFilters>>;
     resetMapView: () => void;
+    activeTab: "realtime" | "monthly";
 }
 
-const FilterPanel = ({ filters, setFilters, resetMapView }: Props) => {
+const FilterPanel = ({ filters, setFilters, resetMapView, activeTab }: Props) => {
     const update = (key: keyof MapFilters, value: string | boolean | string []) =>
         setFilters((prev) => ({ ...prev, [key]: value }));
 
     const { data: indicators, isLoading } = useQuery<Indicator[]>({
-        queryKey: ["indicators"],
-        queryFn: getIndicators,
+        queryKey: ["indicators", activeTab],
+        queryFn: () => activeTab === "monthly" ? getIndicatorsMonthly() : getIndicators(),
     });
 
     const { data: regionsData } = useQuery<Region[]>({
-        queryKey: ["region"],
-        queryFn: getRegions,
+        queryKey: ["region", activeTab],
+        queryFn: () => activeTab === "monthly" ? getRegionsMonthly() : getRegions(),
     });
 
     const { data: agenciesData, isLoading: isLoadingAgencies } = useQuery<Agency[]>({
-        queryKey: ["getAgencies"],
-        queryFn: getAgencies,
+        queryKey: ["getAgencies", activeTab],
+        queryFn: () => activeTab === "monthly" ? getAgenciesMonthly() : getAgencies(),
     });
 
     const { data: sexData, isLoading: isLoadingSex } = useQuery<Sex[]>({
-        queryKey: ["getSex"],
-        queryFn: getSex,
+        queryKey: ["getSex", activeTab],
+        queryFn: () => activeTab === "monthly" ? getSexMonthly() : getSex(),
     });
 
     const { data: ageGroupsData, isLoading: isLoadingAgeGroups } = useQuery<AgeGroup[]>({
-        queryKey: ["getAgeGroups"],
-        queryFn: getAgeGroups,
+        queryKey: ["getAgeGroups", activeTab],
+        queryFn: () => activeTab === "monthly" ? getAgeGroupsMonthly() : getAgeGroups(),
     });
 
     const uniqueCounties = React.useMemo(() => {
