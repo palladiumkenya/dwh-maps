@@ -269,6 +269,9 @@ export function MapView({ filters, mapRef, activeTab, onTabChange }: MapViewProp
         );
     };
 
+    const maxCount = Math.max(...(data?.facilityPoints.map((p: FacilityPoint) => p.count) || [1]));
+    const maxRadius = 30;
+
     return (
         <div className="h-full w-full flex flex-col">
             <MapTabs activeTab={activeTab} onChange={onTabChange} />
@@ -337,28 +340,32 @@ export function MapView({ filters, mapRef, activeTab, onTabChange }: MapViewProp
 
                     {filters.bubbleMapEnabled &&
                         !isLoading &&
-                        data?.facilityPoints.map((point: FacilityPoint, idx: number) => (
-                            <CircleMarker
-                                key={idx}
-                                center={[point.lat, point.long]}
-                                radius={Math.max(4, point.count * 2)}
-                                pathOptions={{
-                                    color: "#2563eb",
-                                    fillColor: "#3b82f6",
-                                    fillOpacity: 0.5,
-                                }}
-                            >
-                                <Popup>
-                                    <div>
-                                        <strong>{point.facilityName}</strong>
-                                        <br />
-                                        Count: {point.count}
-                                        <br />
-                                        Rate: {point.rate.toFixed(2)}%
-                                    </div>
-                                </Popup>
-                            </CircleMarker>
-                        ))}
+                        data?.facilityPoints.map((point: FacilityPoint, idx: number) => {
+                            const radius = (point.count / maxCount) * maxRadius;
+
+                            return (
+                                <CircleMarker
+                                    key={idx}
+                                    center={[point.lat, point.long]}
+                                    radius={Math.max(radius, 2)} // ensures visibility for tiny values
+                                    pathOptions={{
+                                        color: "#2563eb",
+                                        fillColor: "#3b82f6",
+                                        fillOpacity: 0.5,
+                                    }}
+                                >
+                                    <Popup>
+                                        <div>
+                                            <strong>{point.facilityName}</strong>
+                                            <br />
+                                            Count: {point.count}
+                                            <br />
+                                            Rate: {point.rate.toFixed(2)}%
+                                        </div>
+                                    </Popup>
+                                </CircleMarker>
+                            );
+                        })}
                 </MapContainer>
             </div>
         </div>
