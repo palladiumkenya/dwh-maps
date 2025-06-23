@@ -137,6 +137,45 @@ const FilterPanel = ({ filters, setFilters, resetMapView, activeTab }: Props) =>
         }) ?? [];
     }, [agenciesData]);
 
+    const dateRangeFilter = activeTab === "realtime" && (
+        <div>
+            <label className="text-sm font-medium text-gray-700 mb-1 block">Date Range</label>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !dateRange?.from && "text-muted-foreground"
+                        )}
+                    >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dateRange?.from ? (
+                            dateRange?.to ? (
+                                <>
+                                    {format(dateRange.from, "PPP")} - {format(dateRange.to, "PPP")}
+                                </>
+                            ) : (
+                                format(dateRange.from, "PPP")
+                            )
+                        ) : (
+                            <span>Select date range</span>
+                        )}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                    <Calendar
+                        initialFocus
+                        mode="range"
+                        selected={dateRange}
+                        onSelect={(range) => setDateRange(range)}
+                        numberOfMonths={2}
+                    />
+                </PopoverContent>
+            </Popover>
+        </div>
+    );
+
 
     return (
         <div className="p-4 w-80 bg-white border-r space-y-4 max-h-screen overflow-y-auto">
@@ -157,42 +196,7 @@ const FilterPanel = ({ filters, setFilters, resetMapView, activeTab }: Props) =>
                 </SelectContent>
             </Select>
 
-            <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 block">Date Range</label>
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button
-                            variant="outline"
-                            className={cn(
-                                "w-full justify-start text-left font-normal",
-                                !dateRange?.from && "text-muted-foreground"
-                            )}
-                        >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {dateRange?.from ? (
-                                dateRange?.to ? (
-                                    <>
-                                        {format(dateRange.from, "PPP")} - {format(dateRange.to, "PPP")}
-                                    </>
-                                ) : (
-                                    format(dateRange.from, "PPP")
-                                )
-                            ) : (
-                                <span>Select date range</span>
-                            )}
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                        <Calendar
-                            initialFocus
-                            mode="range"
-                            selected={dateRange}
-                            onSelect={(range) => setDateRange(range)}
-                            numberOfMonths={2}
-                        />
-                    </PopoverContent>
-                </Popover>
-            </div>
+            {dateRangeFilter}
 
             <Popover>
                 <PopoverTrigger asChild>
