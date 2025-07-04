@@ -95,13 +95,14 @@ export function MapView({ filters, mapRef, activeTab, onTabChange }: MapViewProp
     const getRate = (name?: string): number | undefined => {
         if (!name) return undefined;
 
-        if (selectedSubCounty.length > 0) {
-            const normalizedName = normalize(name);
-            return data?.wardPoints?.find((w: WardPoint) => normalize(w.ward) === normalizedName)?.rate;
-        } else if (selectedCounty.length > 0) {
-            return data?.subCountyPoints?.find((s: SubCountyPoint) => s.subCounty.toLowerCase() === name.toLowerCase())?.rate;
+        const normalizedName = normalize(name);
+
+        if (selectedSubCounty?.length > 0) {
+            return data?.wardPoints?.find((w: WardPoint) => normalize(w?.ward ?? '') === normalizedName)?.rate;
+        } else if (selectedCounty?.length > 0) {
+            return data?.subCountyPoints?.find((s: SubCountyPoint) => (s?.subCounty ?? '').toLowerCase() === name.toLowerCase())?.rate;
         } else {
-            return data?.countyPoints?.find((c: CountyPoint) => c.county.toLowerCase() === name.toLowerCase())?.rate;
+            return data?.countyPoints?.find((c: CountyPoint) => (c?.county ?? '').toLowerCase() === name.toLowerCase())?.rate;
         }
     };
 
